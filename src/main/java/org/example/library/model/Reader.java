@@ -1,8 +1,8 @@
 package org.example.library.model;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 
 public class Reader extends User {
 
@@ -23,15 +23,26 @@ public class Reader extends User {
     }
 
     public List<String> getBorrowedBookIsbns() {
-        return borrowedBookIsbns;
+        return new ArrayList<>(borrowedBookIsbns);
     }
 
     public void setBorrowedBookIsbns(List<String> borrowedBookIsbns) {
-        this.borrowedBookIsbns = borrowedBookIsbns == null ? new ArrayList<>() : borrowedBookIsbns;
+        if (borrowedBookIsbns == null) {
+            this.borrowedBookIsbns = new ArrayList<>();
+            return;
+        }
+
+        LinkedHashSet<String> uniqueIsbns = new LinkedHashSet<>();
+        for (String isbn : borrowedBookIsbns) {
+            if (isbn != null) {
+                uniqueIsbns.add(isbn);
+            }
+        }
+        this.borrowedBookIsbns = new ArrayList<>(uniqueIsbns);
     }
 
     public void addBorrowedBook(String isbn) {
-        if (!borrowedBookIsbns.contains(isbn)) {
+        if (isbn != null && !borrowedBookIsbns.contains(isbn)) {
             borrowedBookIsbns.add(isbn);
         }
     }
@@ -42,23 +53,6 @@ public class Reader extends User {
 
     public boolean hasBorrowedBook(String isbn) {
         return borrowedBookIsbns.contains(isbn);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Reader reader = (Reader) o;
-        return getId() != null && Objects.equals(getId(), reader.getId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId());
     }
 
     @Override

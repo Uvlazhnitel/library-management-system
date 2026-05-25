@@ -85,7 +85,7 @@ public class Book {
             return false;
         }
         Book book = (Book) o;
-        return Objects.equals(isbn, book.isbn);
+        return isbn != null && Objects.equals(isbn, book.isbn);
     }
 
     @Override
