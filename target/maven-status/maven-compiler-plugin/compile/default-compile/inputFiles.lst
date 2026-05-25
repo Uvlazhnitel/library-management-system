@@ -1,1 +1,6 @@
 /Users/uvlazhnitel/Documents/library-management-system/src/main/java/org/example/library/Main.java
+/Users/uvlazhnitel/Documents/library-management-system/src/main/java/org/example/library/model/Book.java
+/Users/uvlazhnitel/Documents/library-management-system/src/main/java/org/example/library/model/Librarian.java
+/Users/uvlazhnitel/Documents/library-management-system/src/main/java/org/example/library/model/Loan.java
+/Users/uvlazhnitel/Documents/library-management-system/src/main/java/org/example/library/model/Reader.java
+/Users/uvlazhnitel/Documents/library-management-system/src/main/java/org/example/library/model/User.java
