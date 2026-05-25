@@ -27,7 +27,7 @@ public class Reader extends User {
     }
 
     public void setBorrowedBookIsbns(List<String> borrowedBookIsbns) {
-        this.borrowedBookIsbns = borrowedBookIsbns;
+        this.borrowedBookIsbns = borrowedBookIsbns == null ? new ArrayList<>() : borrowedBookIsbns;
     }
 
     public void addBorrowedBook(String isbn) {
@@ -53,7 +53,7 @@ public class Reader extends User {
             return false;
         }
         Reader reader = (Reader) o;
-        return Objects.equals(getId(), reader.getId());
+        return getId() != null && Objects.equals(getId(), reader.getId());
     }
 
     @Override

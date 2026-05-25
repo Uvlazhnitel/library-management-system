@@ -76,6 +76,7 @@ public class Loan {
 
     public void setReturnDate(String returnDate) {
         this.returnDate = returnDate;
+        this.active = returnDate == null;
     }
 
     public boolean isActive() {
@@ -84,6 +85,11 @@ public class Loan {
 
     public void setActive(boolean active) {
         this.active = active;
+        if (active) {
+            this.returnDate = null;
+        } else if (this.returnDate == null) {
+            this.returnDate = LocalDate.now().toString();
+        }
     }
 
     @Override
