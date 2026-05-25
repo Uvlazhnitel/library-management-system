@@ -64,3 +64,4 @@ Suggested workflow:
 ## Current Scope
 
 Business logic, model classes, and application features are intentionally not implemented yet. This stage only provides the initial Maven project structure.
+
