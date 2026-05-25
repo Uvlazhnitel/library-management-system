@@ -1,6 +1,6 @@
 # Library Management System
 
-Library Management System is a console-based Java application created as an OOP course final project. This repository currently contains only the initial Maven project structure and starter documentation.
+Library Management System is a console-based Java application created as an OOP course final project. The system will manage books, readers, librarians, and book borrowing operations.
 
 ## Technologies Used
 
@@ -8,6 +8,76 @@ Library Management System is a console-based Java application created as an OOP 
 - Maven
 - Gson
 - JUnit 5
+
+## Current Status
+
+Completed:
+
+- Initial Maven project structure
+- Model package
+- Basic Main class
+
+In progress:
+
+- Business logic
+- Custom exceptions
+- Console menu
+- JSON file storage
+- Unit tests
+
+## Implemented Model Classes
+
+### Book
+
+Represents a book in the library.
+Main fields: ISBN, title, author, year, genre, availability status.
+
+### User
+
+Abstract parent class for users.
+Main fields: ID, name, email.
+Contains abstract method `getRole()`.
+
+### Reader
+
+Extends `User`.
+Represents a library reader.
+Stores borrowed book ISBNs.
+Provides methods to add, remove, and check borrowed books.
+
+### Librarian
+
+Extends `User`.
+Represents a librarian.
+Stores employee ID.
+
+### Loan
+
+Represents a borrowing operation.
+Stores loan ID, book ISBN, reader ID, borrow date, return date, and active status.
+
+## OOP Principles Demonstrated in the Model Package
+
+- Encapsulation: all fields are private and accessed through getters and setters.
+- Inheritance: `Reader` and `Librarian` extend `User`.
+- Abstraction: `User` is an abstract class.
+- Polymorphism: `Reader` and `Librarian` override `getRole()` differently.
+
+## Important Note for Teammates
+
+`Reader.getBorrowedBookIsbns()` returns a copy of the list.
+
+Library service should use:
+
+- `reader.addBorrowedBook(isbn)`
+- `reader.removeBorrowedBook(isbn)`
+- `reader.hasBorrowedBook(isbn)`
+
+Do not use:
+
+```java
+reader.getBorrowedBookIsbns().add(isbn);
+```
 
 ## Project Structure
 
@@ -31,15 +101,13 @@ library-management-system/
             └── org/example/library/
 ```
 
-## How to Run the Project
-
-Build the project:
+## How to Build
 
 ```bash
 mvn clean package
 ```
 
-Run the application:
+## How to Run
 
 ```bash
 mvn exec:java
@@ -51,16 +119,8 @@ mvn exec:java
 mvn clean test
 ```
 
-## Team Branch Workflow
+## Team Workflow
 
-Use `main` only for stable, working code. All development work should be done in feature branches and merged back only after the branch is ready.
-
-Suggested workflow:
-
-1. Create a new feature branch from `main`.
-2. Implement and test your changes in that branch.
-3. Open a pull request or merge the feature branch after review.
-
-## Current Scope
-
-Business logic, model classes, and application features are intentionally not implemented yet. This stage only provides the initial Maven project structure.
+Keep `main` branch stable.
+Work in feature branches.
+Open Pull Requests before merging to `main`.
