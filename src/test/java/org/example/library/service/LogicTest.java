@@ -3,8 +3,11 @@ package org.example.library.service;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import org.example.library.model.Book;
 import org.example.library.model.Loan;
@@ -13,13 +16,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class LogicTest {
+    private InputStream originalIn;
 
     @BeforeEach
     void setUp() {
+        originalIn = System.in;
         Library.setBooks(new ArrayList<>());
         Library.setReaders(new ArrayList<>());
         Library.setLibrarians(new ArrayList<>());
         Library.setLoans(new ArrayList<>());
+    }
+
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        System.setIn(originalIn);
     }
 
     @Test
@@ -85,5 +95,33 @@ class LogicTest {
     @Test
     void handleMenuInputDoesNotThrowForNonNumericInput() {
         assertDoesNotThrow(() -> assertTrue(Logic.handleMenuInput("abc")));
+    }
+
+    @Test
+    void handleMenuInputTreatsEofSignalAsExit() {
+        assertFalse(Logic.handleMenuInput("__EOF__"));
+    }
+
+    @Test
+    void removeBookHandlesNullIsbnSafely() {
+        Library.addBook(new Book());
+
+        assertDoesNotThrow(() -> assertFalse(Library.removeBook("111")));
+    }
+
+    @Test
+    void parseYearReturnsNullForInvalidInput() {
+        assertNull(Logic.parseYear("abc"));
+        assertEquals(2026, Logic.parseYear("2026"));
+    }
+
+    @Test
+    void searchBooksHandlesNullFieldsWithoutThrowing() {
+        Book incompleteBook = new Book();
+        incompleteBook.setIsbn("111");
+        Library.addBook(incompleteBook);
+        System.setIn(new ByteArrayInputStream("test\n".getBytes()));
+
+        assertDoesNotThrow(Logic::searchBooks);
     }
 }

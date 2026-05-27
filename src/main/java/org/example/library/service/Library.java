@@ -2,6 +2,7 @@ package org.example.library.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.example.library.model.Book;
 import org.example.library.model.Librarian;
 import org.example.library.model.Loan;
@@ -34,7 +35,7 @@ public class Library {
     }
 
     public static boolean removeBook(String isbn) {
-        return books.removeIf(book -> book.getIsbn().equals(isbn));
+        return books.removeIf(book -> Objects.equals(book.getIsbn(), isbn));
     }
 
     public static List<Reader> getReaders() {
