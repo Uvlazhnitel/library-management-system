@@ -2,16 +2,17 @@ package org.example.library.service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 import org.example.library.model.Book;
 import org.example.library.model.Reader;
 import org.example.library.model.Librarian;
 import org.example.library.model.Loan;
 
 public class Library {
-    private static List<Book> books = Collections.emptyList();
-    private static List<Reader> readers = Collections.emptyList();
-    private static List<Librarian> librarians = Collections.emptyList();
-    private static List<Loan> loans = Collections.emptyList();
+    private static ArrayList<Book> books = new ArrayList<>();
+    private static ArrayList<Reader> readers = new ArrayList<>();
+    private static ArrayList<Librarian> librarians = new ArrayList<>();
+    private static ArrayList<Loan> loans = new ArrayList<>();
 
     public static void loadLibrary() {
         // TODO: load library data from storage file
@@ -25,7 +26,7 @@ public class Library {
         return books;
     }
 
-    public static void setBooks(List<Book> books) {
+    public static void setBooks(ArrayList<Book> books) {
         Library.books = books;
     }
 
@@ -41,7 +42,7 @@ public class Library {
         return readers;
     }
 
-    public static void setReaders(List<Reader> readers) {
+    public static void setReaders(ArrayList<Reader> readers) {
         Library.readers = readers;
     }
 
@@ -57,7 +58,7 @@ public class Library {
         return librarians;
     }
 
-    public static void setLibrarians(List<Librarian> librarians) {
+    public static void setLibrarians(ArrayList<Librarian> librarians) {
         Library.librarians = librarians;
     }
 
@@ -73,7 +74,7 @@ public class Library {
         return loans;
     }
 
-    public static void setLoans(List<Loan> loans) {
+    public static void setLoans(ArrayList<Loan> loans) {
         Library.loans = loans;
     }
 
