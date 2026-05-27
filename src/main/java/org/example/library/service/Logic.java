@@ -1,19 +1,14 @@
 package org.example.library.service;
 
-import java.util.Collections;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 import org.example.library.model.Book;
-import org.example.library.model.Reader;
-import org.example.library.model.Librarian;
 import org.example.library.model.Loan;
-
-import java.io.Console;
+import org.example.library.model.Reader;
 
 public class Logic {
-    public static void Test() {
-        System.out.println("Test works.");
-    }
-
     public static void logicOut(String text) {
         // TODO: output
 
@@ -21,23 +16,28 @@ public class Logic {
     }
 
     public static String logicIn(String text) {
-        // TODO: input
-
-        Console console = System.console();
-        if (console != null) {
-            text = console.readLine();
-        } else {
-            // Fallback for environments where System.console() is not available
-            try {
-                byte[] inputBytes = new byte[100];
-                System.in.read(inputBytes);
-                text = new String(inputBytes).trim();
-            } catch (Exception e) {
-                e.printStackTrace();
-                text = "";
-            }
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            return reader.readLine();
+        } catch (IOException e) {
+            logicOut("Failed to read input.");
+            return "";
         }
-        return  text;
+    }
+
+    public static boolean handleMenuInput(String input) {
+        String normalizedInput = input == null ? "" : input.trim();
+        if ("0".equals(normalizedInput)) {
+            return false;
+        }
+
+        try {
+            startOption(Integer.parseInt(normalizedInput));
+        } catch (IllegalArgumentException e) {
+            logicOut("Invalid option. Please enter a number from 0 to 9.");
+        }
+
+        return true;
     }
 
     public static void startOption(int option) {
@@ -107,8 +107,11 @@ public class Logic {
     public static void removeBook() {
         logicOut("Enter book ISBN to remove: ");
         String isbn = logicIn("");
-        Library.removeBook(isbn);
-        logicOut("Book removed successfully."); // TODO: check if book was actually removed
+        if (Library.removeBook(isbn)) {
+            logicOut("Book removed successfully.");
+        } else {
+            logicOut("Book with the given ISBN not found.");
+        }
     }
 
     public static void viewAllBooks() {
@@ -172,26 +175,30 @@ public class Logic {
     }
 
     public static void borrowBook() {
-        
         logicOut("Enter the isbn of the book to borrow: ");
         String isbn = logicIn("");
+        logicOut("Enter reader ID: ");
+        String readerId = logicIn("");
+        borrowBook(isbn, readerId);
+    }
+
+    public static boolean borrowBook(String isbn, String readerId) {
         Book bookToBorrow = null;
         for (Book book : Library.getBooks()) {
             if (book.getIsbn().equals(isbn)) {
                 bookToBorrow = book;
                 break;
-            } else {
-                logicOut("Book with the given ISBN not found.");
-                return;
             }
+        }
+        if (bookToBorrow == null) {
+            logicOut("Book with the given ISBN not found.");
+            return false;
         }
         if (!bookToBorrow.isAvailable()) { 
             logicOut("Book is currently not available for borrowing.");
-            return;
+            return false;
         }
 
-        logicOut("Enter reader ID: ");
-        String readerId = logicIn("");
         Reader readerToBorrow = null;
         for (Reader reader : Library.getReaders()) {
             if (reader.getId().equals(readerId)) {
@@ -201,7 +208,7 @@ public class Logic {
         }
         if (readerToBorrow == null) {
             logicOut("Reader with the given ID not found.");
-            return;
+            return false;
         }
 
         Loan loan = new Loan(isbn, readerId);
@@ -209,27 +216,32 @@ public class Logic {
         bookToBorrow.setAvailable(false);
         readerToBorrow.addBorrowedBook(isbn);
         logicOut("Book borrowed successfully.");
+        return true;
     }
 
     public static void returnBook() {
         logicOut("Enter the isbn of the book to return: ");
         String isbn = logicIn("");
+        returnBook(isbn);
+    }
+
+    public static boolean returnBook(String isbn) {
         Book bookToReturn = null;
         for (Book book : Library.getBooks()) {
             if (book.getIsbn().equals(isbn)) {
                 bookToReturn = book;
                 break;
-            } else {
-                logicOut("Book with the given ISBN not found.");
-                return;
             }
         }
-        if (bookToReturn.isAvailable()) { 
+        if (bookToReturn == null) {
+            logicOut("Book with the given ISBN not found.");
+            return false;
+        }
+        if (bookToReturn.isAvailable()) {
             logicOut("Book is already marked as available.");
-            return;
+            return false;
         }
 
-        // Find the active loan for this book
         Loan activeLoan = null;
         for (Loan loan : Library.getLoans()) {
             if (loan.getBookIsbn().equals(isbn) && loan.isActive()) {
@@ -239,10 +251,9 @@ public class Logic {
         }
         if (activeLoan == null) {
             logicOut("No active loan found for this book.");
-            return;
+            return false;
         }
 
-        // Find active reader for this loan
         Reader activeReader = null;
         for (Reader reader : Library.getReaders()) {
             if (reader.getId().equals(activeLoan.getReaderId())) {
@@ -252,18 +263,18 @@ public class Logic {
         }
         if (activeReader == null) {
             logicOut("Reader associated with the active loan not found.");
-            return;
+            return false;
         }
         if (!activeReader.hasBorrowedBook(isbn)) {
             logicOut("Reader does not have this book marked as borrowed.");
-            return;
+            return false;
         }
-        // Mark the loan as returned and update book and reader status
-        activeReader.removeBorrowedBook(isbn);
 
+        activeReader.removeBorrowedBook(isbn);
         activeLoan.markReturned();
         bookToReturn.setAvailable(true);
         logicOut("Book returned successfully.");
+        return true;
     }
 
     public static void checkAvailability() {

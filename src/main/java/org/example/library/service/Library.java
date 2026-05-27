@@ -1,12 +1,11 @@
 package org.example.library.service;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import org.example.library.model.Book;
-import org.example.library.model.Reader;
 import org.example.library.model.Librarian;
 import org.example.library.model.Loan;
+import org.example.library.model.Reader;
 
 public class Library {
     private static ArrayList<Book> books = new ArrayList<>();
@@ -34,8 +33,8 @@ public class Library {
         books.add(book);
     }
 
-    public static void removeBook(String isbn) {
-        books.removeIf(book -> book.getIsbn().equals(isbn));
+    public static boolean removeBook(String isbn) {
+        return books.removeIf(book -> book.getIsbn().equals(isbn));
     }
 
     public static List<Reader> getReaders() {
