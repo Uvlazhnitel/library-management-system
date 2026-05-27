@@ -18,7 +18,9 @@ public class Main {
                                 "        6 - search books\r\n" + //
                                 "        7 - borrow book\r\n" + //
                                 "        8 - return book\r\n" + //
-                                "        9 - check availability");
+                                "        9 - check availability\r\n" + //
+                                "       10 - save data\r\n" + //
+                                "       11 - load data");
 
             String input = Logic.logicIn("");
             if (!Logic.handleMenuInput(input)) {
