@@ -5,7 +5,17 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Objects;
+import org.example.library.exception.ActiveLoanNotFoundException;
+import org.example.library.exception.BookAlreadyAvailableException;
+import org.example.library.exception.BookNotFoundException;
+import org.example.library.exception.BookUnavailableException;
+import org.example.library.exception.BorrowedBookStateException;
+import org.example.library.exception.LibrarianNotFoundException;
+import org.example.library.exception.LibraryOperationException;
+import org.example.library.exception.LoanReaderNotFoundException;
+import org.example.library.exception.ReaderNotFoundException;
 import org.example.library.model.Book;
+import org.example.library.model.Librarian;
 import org.example.library.model.Loan;
 import org.example.library.model.Reader;
 
@@ -37,13 +47,13 @@ public class Logic {
 
         try {
             int option = Integer.parseInt(normalizedInput);
-            if (option < 0 || option > 11) {
-                logicOut("Invalid option. Please enter a number from 0 to 11.");
+            if (option < 0 || option > 15) {
+                logicOut("Invalid option. Please enter a number from 0 to 15.");
                 return true;
             }
             startOption(option);
         } catch (NumberFormatException e) {
-            logicOut("Invalid option. Please enter a number from 0 to 11.");
+            logicOut("Invalid option. Please enter a number from 0 to 15.");
         }
 
         return true;
@@ -51,17 +61,21 @@ public class Logic {
 
     public static void startOption(int option) {
         /*
-        1 - add book
-        2 - remove book
-        3 - view all books
-        4 - register reader
-        5 - view all readers
-        6 - search books
-        7 - borrow book
-        8 - return book
-        9 - check availability
-        10 - save data
-        11 - load data            
+        1  - add book
+        2  - remove book
+        3  - view all books
+        4  - register reader
+        5  - remove reader
+        6  - view all readers
+        7  - register librarian
+        8  - remove librarian
+        9  - view all librarians
+        10 - search books
+        11 - borrow book
+        12 - return book
+        13 - check availability
+        14 - save data
+        15 - load data
         */
         switch (option) {
             case 1:
@@ -77,24 +91,36 @@ public class Logic {
                 registerReader();
                 break;
             case 5:
-                viewAllReaders();
+                removeReader();
                 break;
             case 6:
-                searchBooks();
+                viewAllReaders();
                 break;
             case 7:
-                borrowBook();
+                registerLibrarian();
                 break;
             case 8:
-                returnBook();
+                removeLibrarian();
                 break;
             case 9:
-                checkAvailability();
+                viewAllLibrarians();
                 break;
             case 10:
-                saveData();
+                searchBooks();
                 break;
             case 11:
+                borrowBook();
+                break;
+            case 12:
+                returnBook();
+                break;
+            case 13:
+                checkAvailability();
+                break;
+            case 14:
+                saveData();
+                break;
+            case 15:
                 loadData();
                 break;
 
@@ -179,6 +205,22 @@ public class Logic {
         logicOut("Reader registered successfully.");
     }
 
+    public static void removeReader() {
+        logicOut("Enter reader ID to remove: ");
+        String id = normalizeInput(logicIn(""));
+        if (shouldExitInput(id)) {
+            logicOut("Input closed. Returning to menu.");
+            return;
+        }
+        boolean found = Library.getReaders().stream().anyMatch(r -> id.equals(r.getId()));
+        if (!found) {
+            logicOut("Reader with the given ID not found.");
+            return;
+        }
+        Library.removeReader(id);
+        logicOut("Reader removed successfully.");
+    }
+
     public static void viewAllReaders() {
         List<Reader> readers = Library.getReaders();
         if (readers.isEmpty()) {
@@ -191,32 +233,88 @@ public class Logic {
         }
     }
 
+    public static void registerLibrarian() {
+        Librarian librarian = new Librarian();
+        logicOut("Enter librarian ID: ");
+        String id = normalizeInput(logicIn(""));
+        if (shouldExitInput(id)) {
+            logicOut("Input closed. Returning to menu.");
+            return;
+        }
+        librarian.setId(id);
+        logicOut("Enter librarian name: ");
+        String name = normalizeInput(logicIn(""));
+        if (shouldExitInput(name)) {
+            logicOut("Input closed. Returning to menu.");
+            return;
+        }
+        librarian.setName(name);
+        logicOut("Enter librarian email: ");
+        String email = normalizeInput(logicIn(""));
+        if (shouldExitInput(email)) {
+            logicOut("Input closed. Returning to menu.");
+            return;
+        }
+        librarian.setEmail(email);
+        logicOut("Enter employee ID: ");
+        String employeeId = normalizeInput(logicIn(""));
+        if (shouldExitInput(employeeId)) {
+            logicOut("Input closed. Returning to menu.");
+            return;
+        }
+        librarian.setEmployeeId(employeeId);
+        Library.addLibrarian(librarian);
+        logicOut("Librarian registered successfully.");
+    }
+
+    public static void removeLibrarian() {
+        logicOut("Enter librarian ID to remove: ");
+        String id = normalizeInput(logicIn(""));
+        if (shouldExitInput(id)) {
+            logicOut("Input closed. Returning to menu.");
+            return;
+        }
+        boolean found = Library.getLibrarians().stream().anyMatch(l -> l.getId().equals(id));
+        if (!found) {
+            logicOut("Librarian with the given ID not found.");
+            return;
+        }
+        Library.removeLibrarian(id);
+        logicOut("Librarian removed successfully.");
+    }
+
+    public static void viewAllLibrarians() {
+        List<Librarian> librarians = Library.getLibrarians();
+        if (librarians.isEmpty()) {
+            logicOut("No librarians registered.");
+        } else {
+            for (Librarian librarian : librarians) {
+                logicOut(String.format("%s - %s (%s) [emp: %s]",
+                        librarian.getId(), librarian.getName(),
+                        librarian.getEmail(), librarian.getEmployeeId()));
+            }
+        }
+    }
+
     public static void searchBooks() {
-        logicOut("Enter search query (title, author, or genre): ");
+        logicOut("Enter search query (ISBN, title, author, or genre): ");
         String rawQuery = normalizeInput(logicIn(""));
         if (shouldExitInput(rawQuery)) {
             logicOut("Input closed. Returning to menu.");
             return;
         }
-        String query = rawQuery.toLowerCase();
-        List<Book> books = Library.getBooks();
-        boolean found = false;
-        for (Book book : books) {
-            String title = Objects.toString(book.getTitle(), "").toLowerCase();
-            String author = Objects.toString(book.getAuthor(), "").toLowerCase();
-            String genre = Objects.toString(book.getGenre(), "").toLowerCase();
-            if (title.contains(query) ||
-                author.contains(query) ||
-                genre.contains(query)) {
-                logicOut(String.format("%s - %s by %s (%d) [%s] - %s",
-                        book.getIsbn(), book.getTitle(), book.getAuthor(),
-                        book.getYear(), book.getGenre(),
-                        book.isAvailable() ? "Available" : "Not Available"));
-                found = true;
-            }
-        }
-        if (!found) {
+
+        List<Book> matches = Library.searchBooks(rawQuery);
+        if (matches.isEmpty()) {
             logicOut("No books found matching the query.");
+            return;
+        }
+
+        for (Book book : matches) {
+            logicOut(String.format("%s - %s by %s (%d) [%s] - %s",
+                    book.getIsbn(), book.getTitle(), book.getAuthor(),
+                    book.getYear(), book.getGenre(),
+                    book.isAvailable() ? "Available" : "Not Available"));
         }
     }
 
@@ -239,44 +337,27 @@ public class Logic {
             logicOut("Input closed. Returning to menu.");
             return;
         }
-        borrowBook(isbn, readerId, librarianId);
+        try {
+            borrowBook(isbn, readerId, librarianId);
+        } catch (LibraryOperationException e) {
+            logicOut(mapLibraryOperationMessage(e));
+        }
     }
 
-    public static boolean borrowBook(String isbn, String readerId, String librarianId) {
-        Book bookToBorrow = null;
-        for (Book book : Library.getBooks()) {
-            if (book.getIsbn().equals(isbn)) {
-                bookToBorrow = book;
-                break;
-            }
-        }
-        if (bookToBorrow == null) {
-            logicOut("Book with the given ISBN not found.");
-            return false;
-        }
+    public static void borrowBook(String isbn, String readerId, String librarianId) {
+        Book bookToBorrow = findBookByIsbnOrThrow(isbn);
         if (!bookToBorrow.isAvailable()) {
-            logicOut("Book is currently not available for borrowing.");
-            return false;
+            throw new BookUnavailableException();
         }
 
-        Reader readerToBorrow = null;
-        for (Reader reader : Library.getReaders()) {
-            if (reader.getId().equals(readerId)) {
-                readerToBorrow = reader;
-                break;
-            }
-        }
-        if (readerToBorrow == null) {
-            logicOut("Reader with the given ID not found.");
-            return false;
-        }
+        Reader readerToBorrow = findReaderByIdOrThrow(readerId);
+        findLibrarianByIdOrThrow(librarianId);
 
         Loan loan = new Loan(isbn, readerId, librarianId);
         Library.addLoan(loan);
         bookToBorrow.setAvailable(false);
         readerToBorrow.addBorrowedBook(isbn);
         logicOut("Book borrowed successfully.");
-        return true;
     }
 
     public static void returnBook() {
@@ -286,59 +367,29 @@ public class Logic {
             logicOut("Input closed. Returning to menu.");
             return;
         }
-        returnBook(isbn);
+        try {
+            returnBook(isbn);
+        } catch (LibraryOperationException e) {
+            logicOut(mapLibraryOperationMessage(e));
+        }
     }
 
-    public static boolean returnBook(String isbn) {
-        Book bookToReturn = null;
-        for (Book book : Library.getBooks()) {
-            if (book.getIsbn().equals(isbn)) {
-                bookToReturn = book;
-                break;
-            }
-        }
-        if (bookToReturn == null) {
-            logicOut("Book with the given ISBN not found.");
-            return false;
-        }
+    public static void returnBook(String isbn) {
+        Book bookToReturn = findBookByIsbnOrThrow(isbn);
         if (bookToReturn.isAvailable()) {
-            logicOut("Book is already marked as available.");
-            return false;
+            throw new BookAlreadyAvailableException();
         }
 
-        Loan activeLoan = null;
-        for (Loan loan : Library.getLoans()) {
-            if (loan.getBookIsbn().equals(isbn) && loan.isActive()) {
-                activeLoan = loan;
-                break;
-            }
-        }
-        if (activeLoan == null) {
-            logicOut("No active loan found for this book.");
-            return false;
-        }
-
-        Reader activeReader = null;
-        for (Reader reader : Library.getReaders()) {
-            if (reader.getId().equals(activeLoan.getReaderId())) {
-                activeReader = reader;
-                break;
-            }
-        }
-        if (activeReader == null) {
-            logicOut("Reader associated with the active loan not found.");
-            return false;
-        }
+        Loan activeLoan = findActiveLoanByBookIsbnOrThrow(isbn);
+        Reader activeReader = findLoanReaderByIdOrThrow(activeLoan.getReaderId());
         if (!activeReader.hasBorrowedBook(isbn)) {
-            logicOut("Reader does not have this book marked as borrowed.");
-            return false;
+            throw new BorrowedBookStateException();
         }
 
         activeReader.removeBorrowedBook(isbn);
         activeLoan.markReturned();
         bookToReturn.setAvailable(true);
         logicOut("Book returned successfully.");
-        return true;
     }
 
     public static void checkAvailability() {
@@ -348,20 +399,14 @@ public class Logic {
             logicOut("Input closed. Returning to menu.");
             return;
         }
-        Book bookToCheck = null;
-        for (Book book : Library.getBooks()) {
-            if (book.getIsbn().equals(isbn)) {
-                bookToCheck = book;
-                break;
-            }
+        try {
+            Book bookToCheck = findBookByIsbnOrThrow(isbn);
+            logicOut(String.format("Book '%s' is %s.",
+                    bookToCheck.getTitle(),
+                    bookToCheck.isAvailable() ? "available" : "not available"));
+        } catch (LibraryOperationException e) {
+            logicOut(mapLibraryOperationMessage(e));
         }
-        if(bookToCheck == null) {
-            logicOut("Book with the given ISBN not found.");
-            return;
-        }
-        logicOut(String.format("Book '%s' is %s.",
-                bookToCheck.getTitle(),
-                bookToCheck.isAvailable() ? "available" : "not available"));
     }
 
     static Integer parseYear(String input) {
@@ -395,6 +440,113 @@ public class Logic {
 
     private static boolean shouldExitInput(String input) {
         return EOF_SIGNAL.equals(input) || "0".equals(input);
+    }
+
+    private static Book findBookByIsbnOrThrow(String isbn) {
+        if (isbn == null || isbn.isBlank()) {
+            throw new BookNotFoundException();
+        }
+
+        for (Book book : Library.getBooks()) {
+            if (book.getIsbn() == null || book.getIsbn().isBlank()) {
+                continue;
+            }
+            if (book.getIsbn().equals(isbn)) {
+                return book;
+            }
+        }
+
+        throw new BookNotFoundException();
+    }
+
+    private static Reader findReaderByIdOrThrow(String readerId) {
+        if (readerId == null || readerId.isBlank()) {
+            throw new ReaderNotFoundException();
+        }
+
+        for (Reader reader : Library.getReaders()) {
+            if (reader.getId() == null || reader.getId().isBlank()) {
+                continue;
+            }
+            if (reader.getId().equals(readerId)) {
+                return reader;
+            }
+        }
+
+        throw new ReaderNotFoundException();
+    }
+
+    private static Librarian findLibrarianByIdOrThrow(String librarianId) {
+        if (librarianId == null || librarianId.isBlank()) {
+            throw new LibrarianNotFoundException();
+        }
+
+        for (Librarian librarian : Library.getLibrarians()) {
+            if (librarian.getId() == null || librarian.getId().isBlank()) {
+                continue;
+            }
+            if (librarian.getId().equals(librarianId)) {
+                return librarian;
+            }
+        }
+
+        throw new LibrarianNotFoundException();
+    }
+
+    private static Loan findActiveLoanByBookIsbnOrThrow(String isbn) {
+        for (Loan loan : Library.getLoans()) {
+            if (Objects.equals(loan.getBookIsbn(), isbn) && loan.isActive()) {
+                return loan;
+            }
+        }
+
+        throw new ActiveLoanNotFoundException();
+    }
+
+    private static Reader findLoanReaderByIdOrThrow(String readerId) {
+        if (readerId == null || readerId.isBlank()) {
+            throw new LoanReaderNotFoundException();
+        }
+
+        for (Reader reader : Library.getReaders()) {
+            if (reader.getId() == null || reader.getId().isBlank()) {
+                continue;
+            }
+            if (reader.getId().equals(readerId)) {
+                return reader;
+            }
+        }
+
+        throw new LoanReaderNotFoundException();
+    }
+
+    private static String mapLibraryOperationMessage(LibraryOperationException e) {
+        if (e instanceof BookNotFoundException) {
+            return "Book with the given ISBN not found.";
+        }
+        if (e instanceof BookUnavailableException) {
+            return "Book is currently not available for borrowing.";
+        }
+        if (e instanceof ReaderNotFoundException) {
+            return "Reader with the given ID not found.";
+        }
+        if (e instanceof LibrarianNotFoundException) {
+            return "Librarian with the given ID not found.";
+        }
+        if (e instanceof LoanReaderNotFoundException) {
+            return "Reader associated with the active loan not found.";
+        }
+        if (e instanceof BookAlreadyAvailableException) {
+            return "Book is already marked as available.";
+        }
+        if (e instanceof ActiveLoanNotFoundException) {
+            return "No active loan found for this book.";
+        }
+        if (e instanceof BorrowedBookStateException) {
+            return "Reader does not have this book marked as borrowed.";
+        }
+
+        return "Library operation failed.";
     }
 
     public static void saveData() {

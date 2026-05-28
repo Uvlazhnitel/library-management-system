@@ -67,6 +67,7 @@ class JsonFileStorageTest {
         assertEquals(1, Library.getLoans().size());
         assertEquals("111", Library.getLoans().get(0).getBookIsbn());
         assertEquals("r1", Library.getLoans().get(0).getReaderId());
+        assertEquals("l1", Library.getLoans().get(0).getLibrarianId());
     }
 
     @Test
