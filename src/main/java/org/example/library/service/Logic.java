@@ -212,7 +212,7 @@ public class Logic {
             logicOut("Input closed. Returning to menu.");
             return;
         }
-        boolean found = Library.getReaders().stream().anyMatch(r -> id.equals(r.getId()));
+        boolean found = Library.getReaders().stream().anyMatch(r -> Objects.equals(r.getId(), id));
         if (!found) {
             logicOut("Reader with the given ID not found.");
             return;
@@ -274,7 +274,7 @@ public class Logic {
             logicOut("Input closed. Returning to menu.");
             return;
         }
-        boolean found = Library.getLibrarians().stream().anyMatch(l -> l.getId().equals(id));
+        boolean found = Library.getLibrarians().stream().anyMatch(l -> Objects.equals(l.getId(), id));
         if (!found) {
             logicOut("Librarian with the given ID not found.");
             return;

@@ -80,7 +80,7 @@ public class Library {
     }
 
     public static void removeReader(String readerId) {
-        readers.removeIf(reader -> reader.getId().equals(readerId));
+        readers.removeIf(reader -> Objects.equals(reader.getId(), readerId));
     }
 
     public static List<Librarian> getLibrarians() {
@@ -96,7 +96,7 @@ public class Library {
     }
 
     public static void removeLibrarian(String librarianId) {
-        librarians.removeIf(librarian -> librarian.getId().equals(librarianId));
+        librarians.removeIf(librarian -> Objects.equals(librarian.getId(), librarianId));
     }
 
     public static List<Loan> getLoans() {
@@ -110,7 +110,7 @@ public class Library {
     public static void addLoan(Loan loan) {
         loans.add(loan);
     }
-    
+
     public static void removeLoan(String loanId) {
         loans.removeIf(loan -> loan.getLoanId().equals(loanId));
     }
