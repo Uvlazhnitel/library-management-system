@@ -1,83 +1,43 @@
 # Library Management System
 
-Library Management System is a console-based Java application created as an OOP course final project. The system will manage books, readers, librarians, and book borrowing operations.
+Library Management System is a Swing-based Java desktop application created as an OOP course final project. The application manages books, readers, librarians, loans, and JSON persistence through a graphical interface.
 
-## Technologies Used
+## Technologies
 
 - Java 17
 - Maven
+- Swing
 - Gson
 - JUnit 5
 
-## Current Status
+## Current Functionality
 
-Completed:
+- Add and remove books
+- Register and remove readers
+- Register and remove librarians
+- Borrow and return books
+- Search books by ISBN, title, author, or genre
+- Check book availability
+- Save and load data from `data/library.json`
 
-- Initial Maven project structure
-- Model package
-- Basic Main class
+## Business Rules
 
-In progress:
+- A book cannot be borrowed if it is already unavailable
+- A book, reader, or librarian with an active loan cannot be removed
+- Duplicate ISBNs are rejected
+- Duplicate reader IDs are rejected
+- Duplicate librarian IDs are rejected
+- IDs that already appear in loan history cannot be reused
 
-- Business logic
-- Custom exceptions
-- Console menu
-- JSON file storage
-- Unit tests
+## User Interface
 
-## Implemented Model Classes
+The application starts with a Swing window and provides:
 
-### Book
-
-Represents a book in the library.
-Main fields: ISBN, title, author, year, genre, availability status.
-
-### User
-
-Abstract parent class for users.
-Main fields: ID, name, email.
-Contains abstract method `getRole()`.
-
-### Reader
-
-Extends `User`.
-Represents a library reader.
-Stores borrowed book ISBNs.
-Provides methods to add, remove, and check borrowed books.
-
-### Librarian
-
-Extends `User`.
-Represents a librarian.
-Stores employee ID.
-
-### Loan
-
-Represents a borrowing operation.
-Stores loan ID, book ISBN, reader ID, borrow date, return date, and active status.
-
-## OOP Principles Demonstrated in the Model Package
-
-- Encapsulation: all fields are private and accessed through getters and setters.
-- Inheritance: `Reader` and `Librarian` extend `User`.
-- Abstraction: `User` is an abstract class.
-- Polymorphism: `Reader` and `Librarian` override `getRole()` differently.
-
-## Important Note for Teammates
-
-`Reader.getBorrowedBookIsbns()` returns a copy of the list.
-
-Library service should use:
-
-- `reader.addBorrowedBook(isbn)`
-- `reader.removeBorrowedBook(isbn)`
-- `reader.hasBorrowedBook(isbn)`
-
-Do not use:
-
-```java
-reader.getBorrowedBookIsbns().add(isbn);
-```
+- `Books` tab for browsing, searching, adding, and removing books
+- `Readers` tab for adding and removing readers
+- `Librarians` tab for adding and removing librarians
+- `Loans` tab for borrowing and returning books
+- menu and toolbar actions for save/load
 
 ## Project Structure
 
@@ -86,41 +46,44 @@ library-management-system/
 ├── pom.xml
 ├── README.md
 ├── data/
-│   └── .gitkeep
+│   └── library.json
 └── src/
     ├── main/
     │   └── java/
     │       └── org/example/library/
     │           ├── Main.java
+    │           ├── exception/
     │           ├── model/
     │           ├── service/
     │           ├── storage/
-    │           └── exception/
+    │           └── ui/
     └── test/
         └── java/
             └── org/example/library/
 ```
 
-## How to Build
+## Build
 
 ```bash
 mvn clean package
 ```
 
-## How to Run
+## Run
 
 ```bash
 mvn exec:java
 ```
 
-## How to Run Tests
+This command launches the Swing desktop interface.
+
+## Run Tests
 
 ```bash
 mvn clean test
 ```
 
-## Team Workflow
+## Notes
 
-Keep `main` branch stable.
-Work in feature branches.
-Open Pull Requests before merging to `main`.
+- Application data is stored in `data/library.json`
+- Persistence uses UTF-8 JSON files
+- The service layer still contains console-oriented logic helpers, but the main entrypoint launches the Swing UI
