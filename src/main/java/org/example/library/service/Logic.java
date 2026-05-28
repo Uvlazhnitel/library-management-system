@@ -409,7 +409,7 @@ public class Logic {
         }
     }
 
-    static Integer parseYear(String input) {
+    public static Integer parseYear(String input) {
         try {
             return Integer.parseInt(normalizeInput(input));
         } catch (NumberFormatException e) {
