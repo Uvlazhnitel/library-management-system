@@ -2,10 +2,11 @@ package org.example.library.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import org.example.library.model.Book;
 import org.example.library.model.Librarian;
@@ -58,7 +59,7 @@ public class JsonFileStorage implements Storage {
             }
         }
 
-        try (FileWriter writer = new FileWriter(targetFile)) {
+        try (var writer = Files.newBufferedWriter(targetFile.toPath(), StandardCharsets.UTF_8)) {
             writer.write(json);
             Logic.logicOut("Data saved to " + filePath);
         } catch (IOException e) {
@@ -74,16 +75,18 @@ public class JsonFileStorage implements Storage {
             return;
         }
 
-        try (FileReader reader = new FileReader(file)) {
+        try (var reader = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
             Gson gson = new Gson();
             LibraryData data = gson.fromJson(reader, LibraryData.class);
             if (data != null) {
-                if (data.books != null) Library.setBooks(data.books);
-                if (data.readers != null) Library.setReaders(data.readers);
-                if (data.librarians != null) Library.setLibrarians(data.librarians);
-                if (data.loans != null) Library.setLoans(data.loans);
+                Library.setBooks(data.books != null ? data.books : new ArrayList<>());
+                Library.setReaders(data.readers != null ? data.readers : new ArrayList<>());
+                Library.setLibrarians(data.librarians != null ? data.librarians : new ArrayList<>());
+                Library.setLoans(data.loans != null ? data.loans : new ArrayList<>());
                 Logic.logicOut("Data loaded from " + filePath);
             }
+        } catch (JsonParseException e) {
+            Logic.logicOut("Failed to load data: invalid JSON format.");
         } catch (IOException e) {
             Logic.logicOut("Failed to load data: " + e.getMessage());
         }
