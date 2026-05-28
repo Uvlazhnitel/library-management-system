@@ -15,6 +15,7 @@ import org.example.library.exception.BookAlreadyAvailableException;
 import org.example.library.exception.BookNotFoundException;
 import org.example.library.exception.BookUnavailableException;
 import org.example.library.exception.BorrowedBookStateException;
+import org.example.library.exception.LoanReaderNotFoundException;
 import org.example.library.exception.ReaderNotFoundException;
 import org.example.library.model.Book;
 import org.example.library.model.Loan;
@@ -240,7 +241,7 @@ class LogicTest {
         Library.addBook(book);
         Library.addLoan(loan);
 
-        assertThrows(ReaderNotFoundException.class, () -> Logic.returnBook("111"));
+        assertThrows(LoanReaderNotFoundException.class, () -> Logic.returnBook("111"));
     }
 
     @Test
@@ -308,6 +309,17 @@ class LogicTest {
         Library.addBook(new Book("111", "First", "Author A", 2020, "Drama", false));
 
         assertThrows(BookNotFoundException.class, () -> Logic.returnBook("   "));
+    }
+
+    @Test
+    void returnBookCliHandlesMissingLoanReaderWithoutThrowing() {
+        Book book = new Book("111", "Book", "Author", 2020, "Drama", false);
+        Loan loan = new Loan("loan-1", "111", "missing-reader", "2026-05-28", null, true);
+        Library.addBook(book);
+        Library.addLoan(loan);
+        System.setIn(new ByteArrayInputStream("111\n".getBytes()));
+
+        assertDoesNotThrow(() -> Logic.returnBook());
     }
 
     @Test

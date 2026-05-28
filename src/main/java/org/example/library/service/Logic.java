@@ -11,6 +11,7 @@ import org.example.library.exception.BookNotFoundException;
 import org.example.library.exception.BookUnavailableException;
 import org.example.library.exception.BorrowedBookStateException;
 import org.example.library.exception.LibraryOperationException;
+import org.example.library.exception.LoanReaderNotFoundException;
 import org.example.library.exception.ReaderNotFoundException;
 import org.example.library.model.Book;
 import org.example.library.model.Loan;
@@ -275,7 +276,7 @@ public class Logic {
         }
 
         Loan activeLoan = findActiveLoanByBookIsbnOrThrow(isbn);
-        Reader activeReader = findReaderByIdOrThrow(activeLoan.getReaderId());
+        Reader activeReader = findLoanReaderByIdOrThrow(activeLoan.getReaderId());
         if (!activeReader.hasBorrowedBook(isbn)) {
             throw new BorrowedBookStateException();
         }
@@ -380,6 +381,23 @@ public class Logic {
         throw new ActiveLoanNotFoundException();
     }
 
+    private static Reader findLoanReaderByIdOrThrow(String readerId) {
+        if (readerId == null || readerId.isBlank()) {
+            throw new LoanReaderNotFoundException();
+        }
+
+        for (Reader reader : Library.getReaders()) {
+            if (reader.getId() == null || reader.getId().isBlank()) {
+                continue;
+            }
+            if (reader.getId().equals(readerId)) {
+                return reader;
+            }
+        }
+
+        throw new LoanReaderNotFoundException();
+    }
+
     private static String mapLibraryOperationMessage(LibraryOperationException e) {
         if (e instanceof BookNotFoundException) {
             return "Book with the given ISBN not found.";
@@ -389,6 +407,9 @@ public class Logic {
         }
         if (e instanceof ReaderNotFoundException) {
             return "Reader with the given ID not found.";
+        }
+        if (e instanceof LoanReaderNotFoundException) {
+            return "Reader associated with the active loan not found.";
         }
         if (e instanceof BookAlreadyAvailableException) {
             return "Book is already marked as available.";
