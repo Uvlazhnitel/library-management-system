@@ -2,6 +2,7 @@ package org.example.library.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import org.example.library.model.Book;
 import org.example.library.model.Librarian;
@@ -40,6 +41,30 @@ public class Library {
 
     public static boolean removeBook(String isbn) {
         return books.removeIf(book -> Objects.equals(book.getIsbn(), isbn));
+    }
+
+    public static List<Book> searchBooks(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        String normalizedKeyword = keyword.trim().toLowerCase(Locale.ROOT);
+        List<Book> matches = new ArrayList<>();
+        for (Book book : books) {
+            String isbn = Objects.toString(book.getIsbn(), "").toLowerCase(Locale.ROOT);
+            String title = Objects.toString(book.getTitle(), "").toLowerCase(Locale.ROOT);
+            String author = Objects.toString(book.getAuthor(), "").toLowerCase(Locale.ROOT);
+            String genre = Objects.toString(book.getGenre(), "").toLowerCase(Locale.ROOT);
+
+            if (isbn.contains(normalizedKeyword) ||
+                title.contains(normalizedKeyword) ||
+                author.contains(normalizedKeyword) ||
+                genre.contains(normalizedKeyword)) {
+                matches.add(book);
+            }
+        }
+
+        return matches;
     }
 
     public static List<Reader> getReaders() {
