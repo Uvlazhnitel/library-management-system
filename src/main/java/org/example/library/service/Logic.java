@@ -192,7 +192,7 @@ public class Logic {
     }
 
     public static void searchBooks() {
-        logicOut("Enter search query (title, author, or genre): ");
+        logicOut("Enter search query (ISBN, title, author, or genre): ");
         String rawQuery = normalizeInput(logicIn(""));
         if (shouldExitInput(rawQuery)) {
             logicOut("Input closed. Returning to menu.");

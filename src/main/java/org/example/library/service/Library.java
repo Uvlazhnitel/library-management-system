@@ -2,6 +2,7 @@ package org.example.library.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import org.example.library.model.Book;
 import org.example.library.model.Librarian;
@@ -47,13 +48,13 @@ public class Library {
             return new ArrayList<>();
         }
 
-        String normalizedKeyword = keyword.trim().toLowerCase();
+        String normalizedKeyword = keyword.trim().toLowerCase(Locale.ROOT);
         List<Book> matches = new ArrayList<>();
         for (Book book : books) {
-            String isbn = Objects.toString(book.getIsbn(), "").toLowerCase();
-            String title = Objects.toString(book.getTitle(), "").toLowerCase();
-            String author = Objects.toString(book.getAuthor(), "").toLowerCase();
-            String genre = Objects.toString(book.getGenre(), "").toLowerCase();
+            String isbn = Objects.toString(book.getIsbn(), "").toLowerCase(Locale.ROOT);
+            String title = Objects.toString(book.getTitle(), "").toLowerCase(Locale.ROOT);
+            String author = Objects.toString(book.getAuthor(), "").toLowerCase(Locale.ROOT);
+            String genre = Objects.toString(book.getGenre(), "").toLowerCase(Locale.ROOT);
 
             if (isbn.contains(normalizedKeyword) ||
                 title.contains(normalizedKeyword) ||
