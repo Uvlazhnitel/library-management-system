@@ -192,31 +192,24 @@ public class Logic {
     }
 
     public static void searchBooks() {
-        logicOut("Enter search query (title, author, or genre): ");
+        logicOut("Enter search query (ISBN, title, author, or genre): ");
         String rawQuery = normalizeInput(logicIn(""));
         if (shouldExitInput(rawQuery)) {
             logicOut("Input closed. Returning to menu.");
             return;
         }
-        String query = rawQuery.toLowerCase();
-        List<Book> books = Library.getBooks();
-        boolean found = false;
-        for (Book book : books) {
-            String title = Objects.toString(book.getTitle(), "").toLowerCase();
-            String author = Objects.toString(book.getAuthor(), "").toLowerCase();
-            String genre = Objects.toString(book.getGenre(), "").toLowerCase();
-            if (title.contains(query) ||
-                author.contains(query) ||
-                genre.contains(query)) {
-                logicOut(String.format("%s - %s by %s (%d) [%s] - %s",
-                        book.getIsbn(), book.getTitle(), book.getAuthor(),
-                        book.getYear(), book.getGenre(),
-                        book.isAvailable() ? "Available" : "Not Available"));
-                found = true;
-            }
-        }
-        if (!found) {
+
+        List<Book> matches = Library.searchBooks(rawQuery);
+        if (matches.isEmpty()) {
             logicOut("No books found matching the query.");
+            return;
+        }
+
+        for (Book book : matches) {
+            logicOut(String.format("%s - %s by %s (%d) [%s] - %s",
+                    book.getIsbn(), book.getTitle(), book.getAuthor(),
+                    book.getYear(), book.getGenre(),
+                    book.isAvailable() ? "Available" : "Not Available"));
         }
     }
 
