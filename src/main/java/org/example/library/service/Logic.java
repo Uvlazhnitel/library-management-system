@@ -37,13 +37,13 @@ public class Logic {
 
         try {
             int option = Integer.parseInt(normalizedInput);
-            if (option < 0 || option > 9) {
-                logicOut("Invalid option. Please enter a number from 0 to 9.");
+            if (option < 0 || option > 11) {
+                logicOut("Invalid option. Please enter a number from 0 to 11.");
                 return true;
             }
             startOption(option);
         } catch (NumberFormatException e) {
-            logicOut("Invalid option. Please enter a number from 0 to 9.");
+            logicOut("Invalid option. Please enter a number from 0 to 11.");
         }
 
         return true;
@@ -90,6 +90,12 @@ public class Logic {
                 break;
             case 9:
                 checkAvailability();
+                break;
+            case 10:
+                saveData();
+                break;
+            case 11:
+                loadData();
                 break;
 
             default:
@@ -376,5 +382,13 @@ public class Logic {
 
     private static boolean shouldExitInput(String input) {
         return EOF_SIGNAL.equals(input) || "0".equals(input);
+    }
+
+    public static void saveData() {
+        Library.saveLibrary();
+    }
+
+    public static void loadData() {
+        Library.loadLibrary();
     }
 }

@@ -126,6 +126,91 @@ class LogicTest {
     }
 
     @Test
+    void shouldAddBook() {
+        Book book = new Book("isbn123", "Test Book", "John Doe", 2024, "Fiction");
+        Library.addBook(book);
+
+        assertEquals(1, Library.getBooks().size());
+        assertEquals("isbn123", Library.getBooks().get(0).getIsbn());
+        assertEquals("Test Book", Library.getBooks().get(0).getTitle());
+    }
+
+    @Test
+    void shouldRegisterReader() {
+        Reader reader = new Reader("r1", "John Smith", "john@test.com");
+        Library.addReader(reader);
+
+        assertEquals(1, Library.getReaders().size());
+        assertEquals("r1", Library.getReaders().get(0).getId());
+        assertEquals("John Smith", Library.getReaders().get(0).getName());
+    }
+
+    @Test
+    void shouldSearchBook() {
+        Library.addBook(new Book("111", "Java Programming", "James Gosling", 2020, "Education"));
+        Library.addBook(new Book("222", "Python Basics", "Guido", 2021, "Education"));
+        System.setIn(new ByteArrayInputStream("java\n".getBytes()));
+
+        assertDoesNotThrow(Logic::searchBooks);
+    }
+
+    @Test
+    void shouldBorrowAvailableBook() {
+        Book book = new Book("111", "Test Book", "Author", 2020, "Fiction");
+        Reader reader = new Reader("r1", "John", "john@test.com");
+        Library.addBook(book);
+        Library.addReader(reader);
+
+        boolean result = Logic.borrowBook("111", "r1");
+
+        assertTrue(result);
+        assertFalse(book.isAvailable());
+        assertTrue(reader.hasBorrowedBook("111"));
+        assertEquals(1, Library.getLoans().size());
+    }
+
+    @Test
+    void shouldNotBorrowAlreadyBorrowedBook() {
+        Book book = new Book("111", "Test Book", "Author", 2020, "Fiction", false);
+        Reader reader = new Reader("r1", "John", "john@test.com");
+        Library.addBook(book);
+        Library.addReader(reader);
+
+        boolean result = Logic.borrowBook("111", "r1");
+
+        assertFalse(result);
+        assertTrue(Library.getLoans().isEmpty());
+    }
+
+    @Test
+    void shouldReturnBorrowedBook() {
+        Book book = new Book("111", "Test Book", "Author", 2020, "Fiction", false);
+        Reader reader = new Reader("r1", "John", "john@test.com");
+        Loan loan = new Loan("loan-1", "111", "r1", "2026-05-27", null, true);
+        reader.addBorrowedBook("111");
+        Library.addBook(book);
+        Library.addReader(reader);
+        Library.addLoan(loan);
+
+        boolean result = Logic.returnBook("111");
+
+        assertTrue(result);
+        assertTrue(book.isAvailable());
+        assertFalse(reader.hasBorrowedBook("111"));
+        assertFalse(loan.isActive());
+    }
+
+    @Test
+    void shouldCheckBookAvailability() {
+        Book book = new Book("111", "Test Book", "Author", 2020, "Fiction");
+        Library.addBook(book);
+        System.setIn(new ByteArrayInputStream("111\n".getBytes()));
+
+        assertDoesNotThrow(Logic::checkAvailability);
+        assertTrue(book.isAvailable());
+    }
+
+    @Test
     void librarySearchBooksFindsByTitle() {
         Book book = new Book("111", "Java Programming", "James Gosling", 2020, "Education");
         Library.addBook(book);
