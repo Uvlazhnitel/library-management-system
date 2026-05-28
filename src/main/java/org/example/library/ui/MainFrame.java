@@ -289,6 +289,11 @@ public class MainFrame extends JFrame {
             showError("ISBN and Title are required.");
             return;
         }
+        String isbnVal = isbn.getText().trim();
+        boolean isbnExists = Library.getBooks().stream()
+                .anyMatch(b -> isbnVal.equals(b.getIsbn()));
+        if (isbnExists) { showError("Book with ISBN \"" + isbnVal + "\" already exists."); return; }
+
         Integer y = Logic.parseYear(year.getText().trim());
         if (y == null) { showError("Year must be a number."); return; }
 
@@ -330,6 +335,11 @@ public class MainFrame extends JFrame {
         if (confirm(form, "Add Reader") != JOptionPane.OK_OPTION) return;
 
         if (id.getText().isBlank()) { showError("ID is required."); return; }
+        String readerIdVal = id.getText().trim();
+        boolean readerExists = Library.getReaders().stream()
+                .anyMatch(r -> readerIdVal.equals(r.getId()));
+        if (readerExists) { showError("Reader with ID \"" + readerIdVal + "\" already exists."); return; }
+
         Library.addReader(new Reader(
             id.getText().trim(), name.getText().trim(), email.getText().trim()
         ));
@@ -355,6 +365,11 @@ public class MainFrame extends JFrame {
         if (confirm(form, "Add Librarian") != JOptionPane.OK_OPTION) return;
 
         if (id.getText().isBlank()) { showError("ID is required."); return; }
+        String libIdVal = id.getText().trim();
+        boolean libExists = Library.getLibrarians().stream()
+                .anyMatch(l -> libIdVal.equals(l.getId()));
+        if (libExists) { showError("Librarian with ID \"" + libIdVal + "\" already exists."); return; }
+
         Library.addLibrarian(new Librarian(
             id.getText().trim(), name.getText().trim(),
             email.getText().trim(), empId.getText().trim()
