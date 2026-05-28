@@ -36,7 +36,7 @@ class JsonFileStorageTest {
         Reader reader = new Reader("r1", "Reader", "reader@test.com");
         reader.addBorrowedBook("111");
         Librarian librarian = new Librarian("l1", "Lib", "lib@test.com", "emp-1");
-        Loan loan = new Loan("loan-1", "111", "r1", "2026-05-28", null, true);
+        Loan loan = new Loan("loan-1", "111", "r1", "l1", "2026-05-28", null, true);
 
         Library.addBook(book);
         Library.addReader(reader);
@@ -67,6 +67,7 @@ class JsonFileStorageTest {
         assertEquals(1, Library.getLoans().size());
         assertEquals("111", Library.getLoans().get(0).getBookIsbn());
         assertEquals("r1", Library.getLoans().get(0).getReaderId());
+        assertEquals("l1", Library.getLoans().get(0).getLibrarianId());
     }
 
     @Test
@@ -74,7 +75,7 @@ class JsonFileStorageTest {
         Library.addBook(new Book("111", "Old Book", "Author", 2020, "Fiction"));
         Library.addReader(new Reader("r1", "Old Reader", "old@test.com"));
         Library.addLibrarian(new Librarian("l1", "Old Librarian", "oldlib@test.com", "emp-old"));
-        Library.addLoan(new Loan("loan-1", "111", "r1", "2026-05-28", null, true));
+        Library.addLoan(new Loan("loan-1", "111", "r1", "l1", "2026-05-28", null, true));
 
         java.nio.file.Path filePath = tempDir.resolve("partial-library.json");
         Files.writeString(filePath, "{\"books\":null}", StandardCharsets.UTF_8);
@@ -93,7 +94,7 @@ class JsonFileStorageTest {
         Book book = new Book("111", "Stable Book", "Author", 2020, "Fiction");
         Reader reader = new Reader("r1", "Stable Reader", "reader@test.com");
         Librarian librarian = new Librarian("l1", "Stable Librarian", "lib@test.com", "emp-1");
-        Loan loan = new Loan("loan-1", "111", "r1", "2026-05-28", null, true);
+        Loan loan = new Loan("loan-1", "111", "r1", "l1", "2026-05-28", null, true);
 
         Library.addBook(book);
         Library.addReader(reader);

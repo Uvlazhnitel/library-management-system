@@ -15,9 +15,11 @@ import org.example.library.exception.BookAlreadyAvailableException;
 import org.example.library.exception.BookNotFoundException;
 import org.example.library.exception.BookUnavailableException;
 import org.example.library.exception.BorrowedBookStateException;
+import org.example.library.exception.LibrarianNotFoundException;
 import org.example.library.exception.LoanReaderNotFoundException;
 import org.example.library.exception.ReaderNotFoundException;
 import org.example.library.model.Book;
+import org.example.library.model.Librarian;
 import org.example.library.model.Loan;
 import org.example.library.model.Reader;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,12 +47,14 @@ class LogicTest {
         Book firstBook = new Book("111", "First", "Author A", 2020, "Drama");
         Book targetBook = new Book("222", "Second", "Author B", 2021, "Sci-Fi");
         Reader reader = new Reader("r1", "Reader One", "reader@example.com");
+        Librarian librarian = new Librarian("l1", "Lib", "lib@test.com", "emp-1");
 
         Library.addBook(firstBook);
         Library.addBook(targetBook);
         Library.addReader(reader);
+        Library.addLibrarian(librarian);
 
-        assertDoesNotThrow(() -> Logic.borrowBook("222", "r1"));
+        assertDoesNotThrow(() -> Logic.borrowBook("222", "r1", "l1"));
         assertFalse(targetBook.isAvailable());
         assertTrue(reader.hasBorrowedBook("222"));
         assertEquals(1, Library.getLoans().size());
@@ -62,7 +66,7 @@ class LogicTest {
         Library.addBook(new Book("111", "First", "Author A", 2020, "Drama"));
         Library.addReader(reader);
 
-        assertThrows(BookNotFoundException.class, () -> Logic.borrowBook("999", "r1"));
+        assertThrows(BookNotFoundException.class, () -> Logic.borrowBook("999", "r1", "l1"));
         assertTrue(Library.getLoans().isEmpty());
         assertFalse(reader.hasBorrowedBook("999"));
     }
@@ -72,7 +76,7 @@ class LogicTest {
         Book firstBook = new Book("111", "First", "Author A", 2020, "Drama");
         Book targetBook = new Book("222", "Second", "Author B", 2021, "Sci-Fi", false);
         Reader reader = new Reader("r1", "Reader One", "reader@example.com");
-        Loan loan = new Loan("loan-1", "222", "r1", "2026-05-27", null, true);
+        Loan loan = new Loan("loan-1", "222", "r1", "l1", "2026-05-27", null, true);
         reader.addBorrowedBook("222");
 
         Library.addBook(firstBook);
@@ -160,10 +164,12 @@ class LogicTest {
     void shouldBorrowAvailableBook() {
         Book book = new Book("111", "Test Book", "Author", 2020, "Fiction");
         Reader reader = new Reader("r1", "John", "john@test.com");
+        Librarian librarian = new Librarian("l1", "Lib", "lib@test.com", "emp-1");
         Library.addBook(book);
         Library.addReader(reader);
+        Library.addLibrarian(librarian);
 
-        assertDoesNotThrow(() -> Logic.borrowBook("111", "r1"));
+        assertDoesNotThrow(() -> Logic.borrowBook("111", "r1", "l1"));
         assertFalse(book.isAvailable());
         assertTrue(reader.hasBorrowedBook("111"));
         assertEquals(1, Library.getLoans().size());
@@ -176,7 +182,7 @@ class LogicTest {
         Library.addBook(book);
         Library.addReader(reader);
 
-        assertThrows(BookUnavailableException.class, () -> Logic.borrowBook("111", "r1"));
+        assertThrows(BookUnavailableException.class, () -> Logic.borrowBook("111", "r1", "l1"));
         assertTrue(Library.getLoans().isEmpty());
     }
 
@@ -184,7 +190,7 @@ class LogicTest {
     void shouldReturnBorrowedBook() {
         Book book = new Book("111", "Test Book", "Author", 2020, "Fiction", false);
         Reader reader = new Reader("r1", "John", "john@test.com");
-        Loan loan = new Loan("loan-1", "111", "r1", "2026-05-27", null, true);
+        Loan loan = new Loan("loan-1", "111", "r1", "l1", "2026-05-27", null, true);
         reader.addBorrowedBook("111");
         Library.addBook(book);
         Library.addReader(reader);
@@ -210,7 +216,18 @@ class LogicTest {
     void borrowBookThrowsWhenReaderDoesNotExist() {
         Library.addBook(new Book("111", "First", "Author A", 2020, "Drama"));
 
-        assertThrows(ReaderNotFoundException.class, () -> Logic.borrowBook("111", "missing"));
+        assertThrows(ReaderNotFoundException.class, () -> Logic.borrowBook("111", "missing", "l1"));
+        assertTrue(Library.getLoans().isEmpty());
+    }
+
+    @Test
+    void borrowBookThrowsWhenLibrarianDoesNotExist() {
+        Book book = new Book("111", "First", "Author A", 2020, "Drama");
+        Reader reader = new Reader("r1", "Reader One", "reader@example.com");
+        Library.addBook(book);
+        Library.addReader(reader);
+
+        assertThrows(LibrarianNotFoundException.class, () -> Logic.borrowBook("111", "r1", "missing"));
         assertTrue(Library.getLoans().isEmpty());
     }
 
@@ -237,7 +254,7 @@ class LogicTest {
     @Test
     void returnBookThrowsWhenReaderForLoanDoesNotExist() {
         Book book = new Book("111", "Book", "Author", 2020, "Drama", false);
-        Loan loan = new Loan("loan-1", "111", "missing-reader", "2026-05-28", null, true);
+        Loan loan = new Loan("loan-1", "111", "missing-reader", null, "2026-05-28", null, true);
         Library.addBook(book);
         Library.addLoan(loan);
 
@@ -248,7 +265,7 @@ class LogicTest {
     void returnBookThrowsWhenReaderBorrowedStateIsBroken() {
         Book book = new Book("111", "Book", "Author", 2020, "Drama", false);
         Reader reader = new Reader("r1", "Reader", "reader@example.com");
-        Loan loan = new Loan("loan-1", "111", "r1", "2026-05-28", null, true);
+        Loan loan = new Loan("loan-1", "111", "r1", null, "2026-05-28", null, true);
         Library.addBook(book);
         Library.addReader(reader);
         Library.addLoan(loan);
@@ -258,7 +275,7 @@ class LogicTest {
 
     @Test
     void borrowBookCliHandlesDomainErrorsWithoutThrowing() {
-        System.setIn(new ByteArrayInputStream("999\nr1\n".getBytes()));
+        System.setIn(new ByteArrayInputStream("999\nr1\nl1\n".getBytes()));
 
         assertDoesNotThrow(() -> Logic.borrowBook());
     }
@@ -268,7 +285,7 @@ class LogicTest {
         Library.addBook(new Book());
         Library.addReader(new Reader("r1", "Reader One", "reader@example.com"));
 
-        assertThrows(BookNotFoundException.class, () -> Logic.borrowBook(null, "r1"));
+        assertThrows(BookNotFoundException.class, () -> Logic.borrowBook(null, "r1", "l1"));
     }
 
     @Test
@@ -276,7 +293,7 @@ class LogicTest {
         Library.addBook(new Book("111", "First", "Author A", 2020, "Drama"));
         Library.addReader(new Reader("r1", "Reader One", "reader@example.com"));
 
-        assertThrows(BookNotFoundException.class, () -> Logic.borrowBook("   ", "r1"));
+        assertThrows(BookNotFoundException.class, () -> Logic.borrowBook("   ", "r1", "l1"));
     }
 
     @Test
@@ -284,7 +301,7 @@ class LogicTest {
         Library.addBook(new Book("111", "First", "Author A", 2020, "Drama"));
         Library.addReader(new Reader());
 
-        assertThrows(ReaderNotFoundException.class, () -> Logic.borrowBook("111", null));
+        assertThrows(ReaderNotFoundException.class, () -> Logic.borrowBook("111", null, "l1"));
         assertTrue(Library.getLoans().isEmpty());
     }
 
@@ -293,7 +310,7 @@ class LogicTest {
         Library.addBook(new Book("111", "First", "Author A", 2020, "Drama"));
         Library.addReader(new Reader("r1", "Reader One", "reader@example.com"));
 
-        assertThrows(ReaderNotFoundException.class, () -> Logic.borrowBook("111", "   "));
+        assertThrows(ReaderNotFoundException.class, () -> Logic.borrowBook("111", "   ", "l1"));
         assertTrue(Library.getLoans().isEmpty());
     }
 
@@ -314,7 +331,7 @@ class LogicTest {
     @Test
     void returnBookCliHandlesMissingLoanReaderWithoutThrowing() {
         Book book = new Book("111", "Book", "Author", 2020, "Drama", false);
-        Loan loan = new Loan("loan-1", "111", "missing-reader", "2026-05-28", null, true);
+        Loan loan = new Loan("loan-1", "111", "missing-reader", null, "2026-05-28", null, true);
         Library.addBook(book);
         Library.addLoan(loan);
         System.setIn(new ByteArrayInputStream("111\n".getBytes()));
