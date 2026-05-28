@@ -42,7 +42,7 @@ class LogicTest {
         Library.addBook(targetBook);
         Library.addReader(reader);
 
-        boolean result = Logic.borrowBook("222", "r1");
+        boolean result = Logic.borrowBook("222", "r1", "l1");
 
         assertTrue(result);
         assertFalse(targetBook.isAvailable());
@@ -56,7 +56,7 @@ class LogicTest {
         Library.addBook(new Book("111", "First", "Author A", 2020, "Drama"));
         Library.addReader(reader);
 
-        boolean result = Logic.borrowBook("999", "r1");
+        boolean result = Logic.borrowBook("999", "r1", "l1");
 
         assertFalse(result);
         assertTrue(Library.getLoans().isEmpty());
@@ -68,7 +68,7 @@ class LogicTest {
         Book firstBook = new Book("111", "First", "Author A", 2020, "Drama");
         Book targetBook = new Book("222", "Second", "Author B", 2021, "Sci-Fi", false);
         Reader reader = new Reader("r1", "Reader One", "reader@example.com");
-        Loan loan = new Loan("loan-1", "222", "r1", "2026-05-27", null, true);
+        Loan loan = new Loan("loan-1", "222", "r1", "l1", "2026-05-27", null, true);
         reader.addBorrowedBook("222");
 
         Library.addBook(firstBook);
@@ -161,7 +161,7 @@ class LogicTest {
         Library.addBook(book);
         Library.addReader(reader);
 
-        boolean result = Logic.borrowBook("111", "r1");
+        boolean result = Logic.borrowBook("111", "r1", "l1");
 
         assertTrue(result);
         assertFalse(book.isAvailable());
@@ -176,7 +176,7 @@ class LogicTest {
         Library.addBook(book);
         Library.addReader(reader);
 
-        boolean result = Logic.borrowBook("111", "r1");
+        boolean result = Logic.borrowBook("111", "r1", "l1");
 
         assertFalse(result);
         assertTrue(Library.getLoans().isEmpty());
@@ -186,7 +186,7 @@ class LogicTest {
     void shouldReturnBorrowedBook() {
         Book book = new Book("111", "Test Book", "Author", 2020, "Fiction", false);
         Reader reader = new Reader("r1", "John", "john@test.com");
-        Loan loan = new Loan("loan-1", "111", "r1", "2026-05-27", null, true);
+        Loan loan = new Loan("loan-1", "111", "r1", "l1", "2026-05-27", null, true);
         reader.addBorrowedBook("111");
         Library.addBook(book);
         Library.addReader(reader);

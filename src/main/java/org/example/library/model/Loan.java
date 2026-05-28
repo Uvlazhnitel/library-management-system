@@ -8,6 +8,7 @@ public class Loan {
     private String loanId;
     private String bookIsbn;
     private String readerId;
+    private String librarianId;
     private String borrowDate;
     private String returnDate;
     private boolean active;
@@ -15,19 +16,21 @@ public class Loan {
     public Loan() {
     }
 
-    public Loan(String bookIsbn, String readerId) {
+    public Loan(String bookIsbn, String readerId, String librarianId) {
         this.loanId = UUID.randomUUID().toString();
         this.bookIsbn = bookIsbn;
         this.readerId = readerId;
+        this.librarianId = librarianId;
         this.borrowDate = LocalDate.now().toString();
         this.returnDate = null;
         this.active = true;
     }
 
-    public Loan(String loanId, String bookIsbn, String readerId, String borrowDate, String returnDate, boolean active) {
+    public Loan(String loanId, String bookIsbn, String readerId, String librarianId, String borrowDate, String returnDate, boolean active) {
         this.loanId = loanId;
         this.bookIsbn = bookIsbn;
         this.readerId = readerId;
+        this.librarianId = librarianId;
         this.borrowDate = borrowDate;
         this.returnDate = returnDate;
         this.active = active;
@@ -60,6 +63,14 @@ public class Loan {
 
     public void setReaderId(String readerId) {
         this.readerId = readerId;
+    }
+
+    public String getLibrarianId() {
+        return librarianId;
+    }
+
+    public void setLibrarianId(String librarianId) {
+        this.librarianId = librarianId;
     }
 
     public String getBorrowDate() {
@@ -98,6 +109,7 @@ public class Loan {
                 "loanId='" + loanId + '\'' +
                 ", bookIsbn='" + bookIsbn + '\'' +
                 ", readerId='" + readerId + '\'' +
+                ", librarianId='" + librarianId + '\'' +
                 ", borrowDate='" + borrowDate + '\'' +
                 ", returnDate='" + returnDate + '\'' +
                 ", active=" + active +

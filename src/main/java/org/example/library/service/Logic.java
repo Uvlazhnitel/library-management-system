@@ -233,10 +233,16 @@ public class Logic {
             logicOut("Input closed. Returning to menu.");
             return;
         }
-        borrowBook(isbn, readerId);
+        logicOut("Enter librarian ID: ");
+        String librarianId = normalizeInput(logicIn(""));
+        if (shouldExitInput(librarianId)) {
+            logicOut("Input closed. Returning to menu.");
+            return;
+        }
+        borrowBook(isbn, readerId, librarianId);
     }
 
-    public static boolean borrowBook(String isbn, String readerId) {
+    public static boolean borrowBook(String isbn, String readerId, String librarianId) {
         Book bookToBorrow = null;
         for (Book book : Library.getBooks()) {
             if (book.getIsbn().equals(isbn)) {
@@ -248,7 +254,7 @@ public class Logic {
             logicOut("Book with the given ISBN not found.");
             return false;
         }
-        if (!bookToBorrow.isAvailable()) { 
+        if (!bookToBorrow.isAvailable()) {
             logicOut("Book is currently not available for borrowing.");
             return false;
         }
@@ -265,7 +271,7 @@ public class Logic {
             return false;
         }
 
-        Loan loan = new Loan(isbn, readerId);
+        Loan loan = new Loan(isbn, readerId, librarianId);
         Library.addLoan(loan);
         bookToBorrow.setAvailable(false);
         readerToBorrow.addBorrowedBook(isbn);
