@@ -4,6 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import org.example.library.exception.BookHasActiveLoanException;
+import org.example.library.exception.BookIsbnInLoanHistoryException;
+import org.example.library.exception.DuplicateIsbnException;
+import org.example.library.exception.DuplicateLibrarianIdException;
+import org.example.library.exception.DuplicateReaderIdException;
+import org.example.library.exception.LibrarianHasActiveLoanException;
+import org.example.library.exception.LibrarianIdInLoanHistoryException;
+import org.example.library.exception.ReaderHasActiveLoanException;
+import org.example.library.exception.ReaderIdInLoanHistoryException;
 import org.example.library.model.Book;
 import org.example.library.model.Librarian;
 import org.example.library.model.Loan;
@@ -36,10 +45,19 @@ public class Library {
     }
 
     public static void addBook(Book book) {
+        boolean duplicate = books.stream()
+                .anyMatch(b -> Objects.equals(b.getIsbn(), book.getIsbn()));
+        if (duplicate) throw new DuplicateIsbnException();
+        boolean inHistory = loans.stream()
+                .anyMatch(l -> Objects.equals(l.getBookIsbn(), book.getIsbn()));
+        if (inHistory) throw new BookIsbnInLoanHistoryException();
         books.add(book);
     }
 
     public static boolean removeBook(String isbn) {
+        boolean hasActiveLoan = loans.stream()
+                .anyMatch(l -> Objects.equals(l.getBookIsbn(), isbn) && l.isActive());
+        if (hasActiveLoan) throw new BookHasActiveLoanException();
         return books.removeIf(book -> Objects.equals(book.getIsbn(), isbn));
     }
 
@@ -76,10 +94,19 @@ public class Library {
     }
 
     public static void addReader(Reader reader) {
+        boolean duplicate = readers.stream()
+                .anyMatch(r -> Objects.equals(r.getId(), reader.getId()));
+        if (duplicate) throw new DuplicateReaderIdException();
+        boolean inHistory = loans.stream()
+                .anyMatch(l -> Objects.equals(l.getReaderId(), reader.getId()));
+        if (inHistory) throw new ReaderIdInLoanHistoryException();
         readers.add(reader);
     }
 
     public static void removeReader(String readerId) {
+        boolean hasActiveLoan = loans.stream()
+                .anyMatch(l -> Objects.equals(l.getReaderId(), readerId) && l.isActive());
+        if (hasActiveLoan) throw new ReaderHasActiveLoanException();
         readers.removeIf(reader -> Objects.equals(reader.getId(), readerId));
     }
 
@@ -92,10 +119,19 @@ public class Library {
     }
 
     public static void addLibrarian(Librarian librarian) {
+        boolean duplicate = librarians.stream()
+                .anyMatch(l -> Objects.equals(l.getId(), librarian.getId()));
+        if (duplicate) throw new DuplicateLibrarianIdException();
+        boolean inHistory = loans.stream()
+                .anyMatch(l -> Objects.equals(l.getLibrarianId(), librarian.getId()));
+        if (inHistory) throw new LibrarianIdInLoanHistoryException();
         librarians.add(librarian);
     }
 
     public static void removeLibrarian(String librarianId) {
+        boolean hasActiveLoan = loans.stream()
+                .anyMatch(l -> Objects.equals(l.getLibrarianId(), librarianId) && l.isActive());
+        if (hasActiveLoan) throw new LibrarianHasActiveLoanException();
         librarians.removeIf(librarian -> Objects.equals(librarian.getId(), librarianId));
     }
 
