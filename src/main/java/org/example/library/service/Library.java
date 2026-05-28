@@ -38,6 +38,30 @@ public class Library {
         return books.removeIf(book -> Objects.equals(book.getIsbn(), isbn));
     }
 
+    public static List<Book> searchBooks(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        String normalizedKeyword = keyword.trim().toLowerCase();
+        List<Book> matches = new ArrayList<>();
+        for (Book book : books) {
+            String isbn = Objects.toString(book.getIsbn(), "").toLowerCase();
+            String title = Objects.toString(book.getTitle(), "").toLowerCase();
+            String author = Objects.toString(book.getAuthor(), "").toLowerCase();
+            String genre = Objects.toString(book.getGenre(), "").toLowerCase();
+
+            if (isbn.contains(normalizedKeyword) ||
+                title.contains(normalizedKeyword) ||
+                author.contains(normalizedKeyword) ||
+                genre.contains(normalizedKeyword)) {
+                matches.add(book);
+            }
+        }
+
+        return matches;
+    }
+
     public static List<Reader> getReaders() {
         return readers;
     }

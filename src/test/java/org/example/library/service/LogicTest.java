@@ -124,4 +124,79 @@ class LogicTest {
 
         assertDoesNotThrow(Logic::searchBooks);
     }
+
+    @Test
+    void librarySearchBooksFindsByTitle() {
+        Book book = new Book("111", "Java Programming", "James Gosling", 2020, "Education");
+        Library.addBook(book);
+
+        var result = Library.searchBooks("Programming");
+
+        assertEquals(1, result.size());
+        assertEquals("111", result.get(0).getIsbn());
+    }
+
+    @Test
+    void librarySearchBooksFindsByAuthor() {
+        Book book = new Book("111", "Java Programming", "James Gosling", 2020, "Education");
+        Library.addBook(book);
+
+        var result = Library.searchBooks("gosling");
+
+        assertEquals(1, result.size());
+        assertEquals("111", result.get(0).getIsbn());
+    }
+
+    @Test
+    void librarySearchBooksFindsByGenre() {
+        Book book = new Book("111", "Java Programming", "James Gosling", 2020, "Education");
+        Library.addBook(book);
+
+        var result = Library.searchBooks("education");
+
+        assertEquals(1, result.size());
+        assertEquals("111", result.get(0).getIsbn());
+    }
+
+    @Test
+    void librarySearchBooksFindsByIsbn() {
+        Book book = new Book("ISBN-111", "Java Programming", "James Gosling", 2020, "Education");
+        Library.addBook(book);
+
+        var result = Library.searchBooks("111");
+
+        assertEquals(1, result.size());
+        assertEquals("ISBN-111", result.get(0).getIsbn());
+    }
+
+    @Test
+    void librarySearchBooksIsCaseInsensitive() {
+        Book book = new Book("111", "Java Programming", "James Gosling", 2020, "Education");
+        Library.addBook(book);
+
+        var result = Library.searchBooks("jAvA");
+
+        assertEquals(1, result.size());
+        assertEquals("111", result.get(0).getIsbn());
+    }
+
+    @Test
+    void librarySearchBooksReturnsEmptyListForNullOrBlankKeyword() {
+        Library.addBook(new Book("111", "Java Programming", "James Gosling", 2020, "Education"));
+
+        assertTrue(Library.searchBooks(null).isEmpty());
+        assertTrue(Library.searchBooks("   ").isEmpty());
+    }
+
+    @Test
+    void librarySearchBooksHandlesNullBookFields() {
+        Book incompleteBook = new Book();
+        incompleteBook.setIsbn("111");
+        Library.addBook(incompleteBook);
+
+        assertDoesNotThrow(() -> {
+            var result = Library.searchBooks("111");
+            assertEquals(1, result.size());
+        });
+    }
 }
