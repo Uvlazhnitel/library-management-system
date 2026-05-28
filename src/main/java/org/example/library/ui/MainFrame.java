@@ -23,6 +23,9 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import org.example.library.exception.ActiveLoanNotFoundException;
+import org.example.library.exception.DuplicateIsbnException;
+import org.example.library.exception.DuplicateLibrarianIdException;
+import org.example.library.exception.DuplicateReaderIdException;
 import org.example.library.exception.BookAlreadyAvailableException;
 import org.example.library.exception.BookNotFoundException;
 import org.example.library.exception.BookUnavailableException;
@@ -289,19 +292,18 @@ public class MainFrame extends JFrame {
             showError("ISBN and Title are required.");
             return;
         }
-        String isbnVal = isbn.getText().trim();
-        boolean isbnExists = Library.getBooks().stream()
-                .anyMatch(b -> isbnVal.equals(b.getIsbn()));
-        if (isbnExists) { showError("Book with ISBN \"" + isbnVal + "\" already exists."); return; }
-
         Integer y = Logic.parseYear(year.getText().trim());
         if (y == null) { showError("Year must be a number."); return; }
 
-        Library.addBook(new Book(
-            isbn.getText().trim(), title.getText().trim(),
-            author.getText().trim(), y, genre.getText().trim()
-        ));
-        refreshBooks();
+        try {
+            Library.addBook(new Book(
+                isbn.getText().trim(), title.getText().trim(),
+                author.getText().trim(), y, genre.getText().trim()
+            ));
+            refreshBooks();
+        } catch (LibraryOperationException e) {
+            showError(mapError(e));
+        }
     }
 
     private void removeBook() {
@@ -335,15 +337,14 @@ public class MainFrame extends JFrame {
         if (confirm(form, "Add Reader") != JOptionPane.OK_OPTION) return;
 
         if (id.getText().isBlank()) { showError("ID is required."); return; }
-        String readerIdVal = id.getText().trim();
-        boolean readerExists = Library.getReaders().stream()
-                .anyMatch(r -> readerIdVal.equals(r.getId()));
-        if (readerExists) { showError("Reader with ID \"" + readerIdVal + "\" already exists."); return; }
-
-        Library.addReader(new Reader(
-            id.getText().trim(), name.getText().trim(), email.getText().trim()
-        ));
-        refreshReaders();
+        try {
+            Library.addReader(new Reader(
+                id.getText().trim(), name.getText().trim(), email.getText().trim()
+            ));
+            refreshReaders();
+        } catch (LibraryOperationException e) {
+            showError(mapError(e));
+        }
     }
 
     private void removeReader() {
@@ -365,16 +366,15 @@ public class MainFrame extends JFrame {
         if (confirm(form, "Add Librarian") != JOptionPane.OK_OPTION) return;
 
         if (id.getText().isBlank()) { showError("ID is required."); return; }
-        String libIdVal = id.getText().trim();
-        boolean libExists = Library.getLibrarians().stream()
-                .anyMatch(l -> libIdVal.equals(l.getId()));
-        if (libExists) { showError("Librarian with ID \"" + libIdVal + "\" already exists."); return; }
-
-        Library.addLibrarian(new Librarian(
-            id.getText().trim(), name.getText().trim(),
-            email.getText().trim(), empId.getText().trim()
-        ));
-        refreshLibrarians();
+        try {
+            Library.addLibrarian(new Librarian(
+                id.getText().trim(), name.getText().trim(),
+                email.getText().trim(), empId.getText().trim()
+            ));
+            refreshLibrarians();
+        } catch (LibraryOperationException e) {
+            showError(mapError(e));
+        }
     }
 
     private void removeLibrarian() {
@@ -472,7 +472,10 @@ public class MainFrame extends JFrame {
     }
 
     private String mapError(LibraryOperationException e) {
-        if (e instanceof BookNotFoundException)       return "Book not found.";
+        if (e instanceof DuplicateIsbnException)          return "Book with this ISBN already exists.";
+        if (e instanceof DuplicateReaderIdException)      return "Reader with this ID already exists.";
+        if (e instanceof DuplicateLibrarianIdException)   return "Librarian with this ID already exists.";
+        if (e instanceof BookNotFoundException)           return "Book not found.";
         if (e instanceof BookUnavailableException)    return "Book is not available for borrowing.";
         if (e instanceof ReaderNotFoundException)     return "Reader not found.";
         if (e instanceof LibrarianNotFoundException)  return "Librarian not found.";

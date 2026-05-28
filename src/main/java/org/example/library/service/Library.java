@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import org.example.library.exception.DuplicateIsbnException;
+import org.example.library.exception.DuplicateLibrarianIdException;
+import org.example.library.exception.DuplicateReaderIdException;
 import org.example.library.model.Book;
 import org.example.library.model.Librarian;
 import org.example.library.model.Loan;
@@ -36,6 +39,9 @@ public class Library {
     }
 
     public static void addBook(Book book) {
+        boolean duplicate = books.stream()
+                .anyMatch(b -> Objects.equals(b.getIsbn(), book.getIsbn()));
+        if (duplicate) throw new DuplicateIsbnException();
         books.add(book);
     }
 
@@ -76,6 +82,9 @@ public class Library {
     }
 
     public static void addReader(Reader reader) {
+        boolean duplicate = readers.stream()
+                .anyMatch(r -> Objects.equals(r.getId(), reader.getId()));
+        if (duplicate) throw new DuplicateReaderIdException();
         readers.add(reader);
     }
 
@@ -92,6 +101,9 @@ public class Library {
     }
 
     public static void addLibrarian(Librarian librarian) {
+        boolean duplicate = librarians.stream()
+                .anyMatch(l -> Objects.equals(l.getId(), librarian.getId()));
+        if (duplicate) throw new DuplicateLibrarianIdException();
         librarians.add(librarian);
     }
 

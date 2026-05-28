@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Objects;
 import org.example.library.exception.ActiveLoanNotFoundException;
+import org.example.library.exception.DuplicateIsbnException;
+import org.example.library.exception.DuplicateLibrarianIdException;
+import org.example.library.exception.DuplicateReaderIdException;
 import org.example.library.exception.BookAlreadyAvailableException;
 import org.example.library.exception.BookNotFoundException;
 import org.example.library.exception.BookUnavailableException;
@@ -521,6 +524,15 @@ public class Logic {
     }
 
     private static String mapLibraryOperationMessage(LibraryOperationException e) {
+        if (e instanceof DuplicateIsbnException) {
+            return "Book with this ISBN already exists.";
+        }
+        if (e instanceof DuplicateReaderIdException) {
+            return "Reader with this ID already exists.";
+        }
+        if (e instanceof DuplicateLibrarianIdException) {
+            return "Librarian with this ID already exists.";
+        }
         if (e instanceof BookNotFoundException) {
             return "Book with the given ISBN not found.";
         }
