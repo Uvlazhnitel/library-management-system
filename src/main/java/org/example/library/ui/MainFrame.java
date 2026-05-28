@@ -23,9 +23,15 @@ import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 import org.example.library.exception.ActiveLoanNotFoundException;
+import org.example.library.exception.BookHasActiveLoanException;
+import org.example.library.exception.BookIsbnInLoanHistoryException;
 import org.example.library.exception.DuplicateIsbnException;
 import org.example.library.exception.DuplicateLibrarianIdException;
 import org.example.library.exception.DuplicateReaderIdException;
+import org.example.library.exception.LibrarianHasActiveLoanException;
+import org.example.library.exception.LibrarianIdInLoanHistoryException;
+import org.example.library.exception.ReaderHasActiveLoanException;
+import org.example.library.exception.ReaderIdInLoanHistoryException;
 import org.example.library.exception.BookAlreadyAvailableException;
 import org.example.library.exception.BookNotFoundException;
 import org.example.library.exception.BookUnavailableException;
@@ -309,9 +315,13 @@ public class MainFrame extends JFrame {
     private void removeBook() {
         int row = booksTable.getSelectedRow();
         if (row < 0) { showError("Select a book to remove."); return; }
-        Library.removeBook((String) booksModel.getValueAt(row, 0));
-        refreshBooks();
-        refreshLoans();
+        try {
+            Library.removeBook((String) booksModel.getValueAt(row, 0));
+            refreshBooks();
+            refreshLoans();
+        } catch (LibraryOperationException e) {
+            showError(mapError(e));
+        }
     }
 
     private void searchBooks(String query) {
@@ -350,8 +360,12 @@ public class MainFrame extends JFrame {
     private void removeReader() {
         int row = readersTable.getSelectedRow();
         if (row < 0) { showError("Select a reader to remove."); return; }
-        Library.removeReader((String) readersModel.getValueAt(row, 0));
-        refreshReaders();
+        try {
+            Library.removeReader((String) readersModel.getValueAt(row, 0));
+            refreshReaders();
+        } catch (LibraryOperationException e) {
+            showError(mapError(e));
+        }
     }
 
     // ── Librarian actions ─────────────────────────────────────────────────────
@@ -380,8 +394,12 @@ public class MainFrame extends JFrame {
     private void removeLibrarian() {
         int row = librariansTable.getSelectedRow();
         if (row < 0) { showError("Select a librarian to remove."); return; }
-        Library.removeLibrarian((String) librariansModel.getValueAt(row, 0));
-        refreshLibrarians();
+        try {
+            Library.removeLibrarian((String) librariansModel.getValueAt(row, 0));
+            refreshLibrarians();
+        } catch (LibraryOperationException e) {
+            showError(mapError(e));
+        }
     }
 
     // ── Loan actions ──────────────────────────────────────────────────────────
@@ -472,9 +490,15 @@ public class MainFrame extends JFrame {
     }
 
     private String mapError(LibraryOperationException e) {
-        if (e instanceof DuplicateIsbnException)          return "Book with this ISBN already exists.";
-        if (e instanceof DuplicateReaderIdException)      return "Reader with this ID already exists.";
-        if (e instanceof DuplicateLibrarianIdException)   return "Librarian with this ID already exists.";
+        if (e instanceof DuplicateIsbnException)            return "Book with this ISBN already exists.";
+        if (e instanceof DuplicateReaderIdException)        return "Reader with this ID already exists.";
+        if (e instanceof DuplicateLibrarianIdException)     return "Librarian with this ID already exists.";
+        if (e instanceof BookIsbnInLoanHistoryException)    return "This ISBN is in loan history and cannot be reused.";
+        if (e instanceof ReaderIdInLoanHistoryException)    return "This reader ID is in loan history and cannot be reused.";
+        if (e instanceof LibrarianIdInLoanHistoryException) return "This librarian ID is in loan history and cannot be reused.";
+        if (e instanceof BookHasActiveLoanException)        return "Cannot remove: book has an active loan. Return it first.";
+        if (e instanceof ReaderHasActiveLoanException)      return "Cannot remove: reader has an active loan. Return the book first.";
+        if (e instanceof LibrarianHasActiveLoanException)   return "Cannot remove: librarian has an active loan. Return the book first.";
         if (e instanceof BookNotFoundException)           return "Book not found.";
         if (e instanceof BookUnavailableException)    return "Book is not available for borrowing.";
         if (e instanceof ReaderNotFoundException)     return "Reader not found.";

@@ -6,9 +6,15 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Objects;
 import org.example.library.exception.ActiveLoanNotFoundException;
+import org.example.library.exception.BookHasActiveLoanException;
+import org.example.library.exception.BookIsbnInLoanHistoryException;
 import org.example.library.exception.DuplicateIsbnException;
 import org.example.library.exception.DuplicateLibrarianIdException;
 import org.example.library.exception.DuplicateReaderIdException;
+import org.example.library.exception.LibrarianHasActiveLoanException;
+import org.example.library.exception.LibrarianIdInLoanHistoryException;
+import org.example.library.exception.ReaderHasActiveLoanException;
+import org.example.library.exception.ReaderIdInLoanHistoryException;
 import org.example.library.exception.BookAlreadyAvailableException;
 import org.example.library.exception.BookNotFoundException;
 import org.example.library.exception.BookUnavailableException;
@@ -532,6 +538,24 @@ public class Logic {
         }
         if (e instanceof DuplicateLibrarianIdException) {
             return "Librarian with this ID already exists.";
+        }
+        if (e instanceof BookIsbnInLoanHistoryException) {
+            return "This ISBN is referenced in loan history and cannot be reused.";
+        }
+        if (e instanceof ReaderIdInLoanHistoryException) {
+            return "This reader ID is referenced in loan history and cannot be reused.";
+        }
+        if (e instanceof LibrarianIdInLoanHistoryException) {
+            return "This librarian ID is referenced in loan history and cannot be reused.";
+        }
+        if (e instanceof BookHasActiveLoanException) {
+            return "Cannot remove book: it has an active loan. Return the book first.";
+        }
+        if (e instanceof ReaderHasActiveLoanException) {
+            return "Cannot remove reader: they have an active loan. Return the book first.";
+        }
+        if (e instanceof LibrarianHasActiveLoanException) {
+            return "Cannot remove librarian: they have an active loan. Return the book first.";
         }
         if (e instanceof BookNotFoundException) {
             return "Book with the given ISBN not found.";
