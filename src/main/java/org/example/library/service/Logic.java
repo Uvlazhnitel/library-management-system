@@ -337,8 +337,15 @@ public class Logic {
     }
 
     private static Book findBookByIsbnOrThrow(String isbn) {
+        if (isbn == null || isbn.isBlank()) {
+            throw new BookNotFoundException();
+        }
+
         for (Book book : Library.getBooks()) {
-            if (Objects.equals(book.getIsbn(), isbn)) {
+            if (book.getIsbn() == null || book.getIsbn().isBlank()) {
+                continue;
+            }
+            if (book.getIsbn().equals(isbn)) {
                 return book;
             }
         }
@@ -347,8 +354,15 @@ public class Logic {
     }
 
     private static Reader findReaderByIdOrThrow(String readerId) {
+        if (readerId == null || readerId.isBlank()) {
+            throw new ReaderNotFoundException();
+        }
+
         for (Reader reader : Library.getReaders()) {
-            if (Objects.equals(reader.getId(), readerId)) {
+            if (reader.getId() == null || reader.getId().isBlank()) {
+                continue;
+            }
+            if (reader.getId().equals(readerId)) {
                 return reader;
             }
         }

@@ -263,6 +263,54 @@ class LogicTest {
     }
 
     @Test
+    void borrowBookThrowsWhenIsbnIsNull() {
+        Library.addBook(new Book());
+        Library.addReader(new Reader("r1", "Reader One", "reader@example.com"));
+
+        assertThrows(BookNotFoundException.class, () -> Logic.borrowBook(null, "r1"));
+    }
+
+    @Test
+    void borrowBookThrowsWhenIsbnIsBlank() {
+        Library.addBook(new Book("111", "First", "Author A", 2020, "Drama"));
+        Library.addReader(new Reader("r1", "Reader One", "reader@example.com"));
+
+        assertThrows(BookNotFoundException.class, () -> Logic.borrowBook("   ", "r1"));
+    }
+
+    @Test
+    void borrowBookThrowsWhenReaderIdIsNull() {
+        Library.addBook(new Book("111", "First", "Author A", 2020, "Drama"));
+        Library.addReader(new Reader());
+
+        assertThrows(ReaderNotFoundException.class, () -> Logic.borrowBook("111", null));
+        assertTrue(Library.getLoans().isEmpty());
+    }
+
+    @Test
+    void borrowBookThrowsWhenReaderIdIsBlank() {
+        Library.addBook(new Book("111", "First", "Author A", 2020, "Drama"));
+        Library.addReader(new Reader("r1", "Reader One", "reader@example.com"));
+
+        assertThrows(ReaderNotFoundException.class, () -> Logic.borrowBook("111", "   "));
+        assertTrue(Library.getLoans().isEmpty());
+    }
+
+    @Test
+    void returnBookThrowsWhenIsbnIsNull() {
+        Library.addBook(new Book());
+
+        assertThrows(BookNotFoundException.class, () -> Logic.returnBook(null));
+    }
+
+    @Test
+    void returnBookThrowsWhenIsbnIsBlank() {
+        Library.addBook(new Book("111", "First", "Author A", 2020, "Drama", false));
+
+        assertThrows(BookNotFoundException.class, () -> Logic.returnBook("   "));
+    }
+
+    @Test
     void librarySearchBooksFindsByTitle() {
         Book book = new Book("111", "Java Programming", "James Gosling", 2020, "Education");
         Library.addBook(book);
