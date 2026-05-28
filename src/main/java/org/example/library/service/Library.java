@@ -7,6 +7,8 @@ import org.example.library.model.Book;
 import org.example.library.model.Librarian;
 import org.example.library.model.Loan;
 import org.example.library.model.Reader;
+import org.example.library.storage.JsonFileStorage;
+import org.example.library.storage.Storage;
 
 public class Library {
     private static ArrayList<Book> books = new ArrayList<>();
@@ -15,11 +17,13 @@ public class Library {
     private static ArrayList<Loan> loans = new ArrayList<>();
 
     public static void loadLibrary() {
-        // TODO: load library data from storage file
+        Storage storage = new JsonFileStorage();
+        storage.load();
     }
 
     public static void saveLibrary() {
-        // TODO: save library data to storage file
+        Storage storage = new JsonFileStorage();
+        storage.save();
     }
 
     public static List<Book> getBooks() {
